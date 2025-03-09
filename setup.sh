@@ -61,6 +61,13 @@ sudo apt-get install -y neo4j=1:2025.02.0
 
 echo "Setting initial password for Neo4j..."
 sudo neo4j-admin dbms set-initial-password password
+
+NEO4J_CONF="/etc/neo4j/neo4j.conf"
+if grep -q "# server.default_listen_address=0.0.0.0" "$NEO4J_CONF"; then
+    echo "Updating Neo4j network settings..."
+    sudo sed -i 's|# server.default_listen_address=0.0.0.0|server.default_listen_address=0.0.0.0|' "$NEO4J_CONF"
+fi
+
 sudo systemctl enable neo4j
 sudo systemctl start neo4j
 
@@ -96,14 +103,15 @@ cd $HOME
 if [ ! -d "SmolLM2-360M-Instruct" ]; then
     GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct
 fi
+mkdir models
 python3 -m venv ~/llama-cpp-venv
 source ~/llama-cpp-venv/bin/activate
 python -m pip install --upgrade pip wheel setuptools
 python -m pip install --upgrade -r $HOME/llama.cpp/requirements/requirements-convert_hf_to_gguf.txt
 
 echo "Converting and quantizing model..."
-python $HOME/llama.cpp/convert_hf_to_gguf.py SmolLM2-360M-Instruct --outfile $HOME/SmolLM2.gguf
-llama-quantize $HOME/SmolLM2.gguf $HOME/SmolLM2.q8.gguf Q8_0 N
+python $HOME/llama.cpp/convert_hf_to_gguf.py SmolLM2-360M-Instruct --outfile $HOME/models/SmolLM2.gguf
+llama-quantize $HOME/models/SmolLM2.gguf $HOME/models/SmolLM2.q8.gguf Q8_0 4
 deactivate
 
 # ----------------------------------------
@@ -117,9 +125,9 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/llama-server -m \$HOME/SmolLM2.q8.gguf
+ExecStart=/usr/local/bin/llama-server -m \$HOME/models/SmolLM2.q8.gguf --host 0.0.0.0
 Restart=on-abnormal
-RestartSec=5
+RestartSec=3
 User=$USER
 WorkingDirectory=\$HOME
 StandardOutput=syslog

@@ -26,8 +26,7 @@ Prerequisites:
 8. [Secure the Server](#8-secure-the-server)
 9. [Make Redis Persistent](#9-make-redis-persistent)
 10. [Verify Setup](#10-verify-setup)
-11. [Helpful Debian Commands](#11-helpful-debian-commands)
-12. [Windows PowerShell Commands for WSL2](#12-windows-powershell-commands-for-wsl2)
+11. [Manage your setup](#11-manage-your-setup)
 
 
 ## **1. Configure WSL**
@@ -114,13 +113,20 @@ echo 'deb [signed-by=/etc/apt/keyrings/neotechnology.gpg] https://debian.neo4j.c
 sudo apt-get update
 sudo apt-get install -y neo4j=1:2025.02.0
 ```
-### **Set Initial Password & Enable**
+### **Set Initial Password & Enable Outside connections**
 ```bash
 sudo neo4j-admin dbms set-initial-password password
+NEO4J_CONF="/etc/neo4j/neo4j.conf"
+sudo sed -i 's|# server.default_listen_address=0.0.0.0|server.default_listen_address=0.0.0.0|' "$NEO4J_CONF"    
+```
+### **ENable service & check status**
+```bash
 sudo systemctl enable neo4j
 sudo systemctl start neo4j
 neo4j status  # Check status
 ```
+
+---
 
 ## **6. Install llama.cpp and AI Models**
 
@@ -150,6 +156,7 @@ sudo cmake --install build --config Release
 ```bash
 # Clone model repository
 GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct
+mkdir models
 
 # Setup Python environment
 python3 -m venv llama-cpp-venv
@@ -160,9 +167,9 @@ python -m pip install --upgrade pip wheel setuptools
 python -m pip install --upgrade -r llama.cpp/requirements/requirements-convert_hf_to_gguf.txt
 
 # Convert and quantize model
-python llama.cpp/convert_hf_to_gguf.py SmolLM2-360M-Instruct --outfile ./SmolLM2.gguf
-llama-quantize SmolLM2.gguf SmolLM2.q8.gguf Q8_0 N
-
+python llama.cpp/convert_hf_to_gguf.py SmolLM2-360M-Instruct --outfile ./models/SmolLM2.gguf
+llama-quantize ./models/SmolLM2.gguf ./models/SmolLM2.q8.gguf Q8_0 N
+sudo rm ./models/SmolLM2.gguf
 deactivate
 ```
 >Note: You need to manually download the `model.safetensors` file from HuggingFace and place it in the `SmolLM2-360M-Instruct` directory.
@@ -179,11 +186,11 @@ After=network.target
 [Service]
 Type=simple
 # Update the ExecStart path and model path as necessary
-ExecStart=/usr/local/bin/llama-server -m /home/yourusername/models/SmolLM2.q8.gguf
+ExecStart=/usr/local/bin/llama-server -m $HOME/models/SmolLM2.q8.gguf --host 0.0.0.0
 Restart=on-abnormal
 RestartSec=5
-User=yourusername
-WorkingDirectory=/home/yourusername/
+User=$USER
+WorkingDirectory=$HOME
 # Optionally, log output to syslog
 StandardOutput=syslog
 StandardError=syslog
@@ -321,69 +328,6 @@ sudo systemctl restart redis-stack-server
 
 ---
 
-## **11. Helpful Debian Commands**
+## **11. Manage your Setup**
 
-### System Information
-```bash
-# Check disk space
-df -h /                    # Show disk usage
-du -sh /path/to/dir      # Directory size
-
-# Memory usage
-free -h                  # RAM usage
-top                      # Process monitor
-vmstat                   # Virtual memory stats
-
-# System monitoring
-uptime                   # System uptime
-uname -a                 # Kernel info
-lscpu                    # CPU info
-```
-
-### Package Management
-```bash
-# APT commands
-apt update              # Update package list
-apt upgrade             # Upgrade packages
-apt search package      # Search for package
-apt show package        # Show package details
-apt autoremove          # Remove unused packages
-
-# Package maintenance
-dpkg -l                 # List installed packages
-apt clean              # Clear package cache
-apt autoclean          # Remove old packages
-```
-
-### Service Management
-```bash
-# Systemctl commands
-systemctl status name_of_service    # Check service status
-systemctl list-units       # List all services
-systemctl --failed         # Show failed services
-journalctl -xe            # View system logs
-```
-
-## **12. Windows PowerShell Commands for WSL2
-
-
-
-```powershell
-
-(Get-ChildItem -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss | Where-Object { $_.GetValue("DistributionName") -eq 'Debian' }).GetValue("BasePath") + "\ext4.vhdx" #Get .vhdx file and disk path
-
-# Test network connectivity to WSL services
-Test-NetConnection WSL_IP -p 6379    # Redis
-Test-NetConnection WSL_IP -p 7474    # Neo4j
-Test-NetConnection WSL_IP -p 11434   # Ollama
-
-# Find WSL2 VHD location
-(Get-ChildItem -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss | 
- Where-Object { $_.GetValue("DistributionName") -eq 'Debian' }).GetValue("BasePath") + "\ext4.vhdx"
-
-# WSL management
-wsl --list --verbose                  # List distros with status
-wsl hostname -I                       # Get WSL IP address
-wsl --shutdown                       # Stop all distros
-wsl --update                         # Update WSL core
-```
+For detailed commands and instructions on managing your services—including handling processes on both Debian and Windows—please refer to [MANAGE.md](MANAGE.md). This document covers system-specific commands, troubleshooting tips, and best practices for maintaining your RAG AI Assistant setup.
