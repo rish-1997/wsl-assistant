@@ -1,6 +1,8 @@
 # WSL Assistant 🚀  
 *Run a fully integrated AI and database stack on your low-end, CPU-only Windows machine—secure, resilient, and privacy-focused.*  
 
+> **TL;DR:** Self-host AI on your low-end Windows PC using WSL2. Runs on CPU-only, needs just 1GB RAM. See [SUMMARY.md](docs/SUMMARY.md) for a quick overview.
+
 WSL Assistant brings **on-device AI** to **low-power systems** by leveraging WSL2 and Debian. Unlike traditional AI setups that require **power-hungry GPUs**, this project is built **for CPUs only**—allowing you to run **efficient local inference** and a **full RAG pipeline** on even modest hardware.  
 
 With WSL Assistant, you can **self-host AI assistants, chatbots, and knowledge graphs** without relying on external cloud APIs. The lightweight stack includes:  
@@ -13,7 +15,7 @@ With a memory footprint as low as **1GB**, WSL Assistant lets you run **local AI
 
 ![WSL2](https://img.shields.io/badge/WSL2-Supported-blue)  ![Debian](https://img.shields.io/badge/Debian-Supported-blue)  ![License](https://img.shields.io/badge/License-MIT-green)  
 
-![Memory](https://raw.githubusercontent.com/rajatasusual/wsl-assistant/refs/heads/master/assets/mem.png)  
+![Memory](/assets/mem.png)  
 
 ---
 
@@ -120,8 +122,8 @@ cd wsl-assistant
 ./setup.sh
 ```
 
-For **detailed setup instructions**, see [INSTALLATION.md](INSTALLATION.md).  
-For **frequently seen issues**, see [FAQs.md](FAQs.md).
+For **detailed setup instructions**, see [INSTALLATION.md](docs/INSTALLATION.md).  
+For **frequently seen issues**, see [FAQs.md](docs/FAQs.md).
 
 ---
 
@@ -164,11 +166,9 @@ WSL Assistant is optimized for **low-latency CPU-only inference**. Below is a be
 
 ---
 
-## **9. Roadmap** 🚀  
-- [ ] Web UI for monitoring services  
-- [ ] Dockerized version for portability  
-- [ ] Integration with **LangChain** for extended RAG  
-- [ ] Multi-user SSH with isolated environments  
+## **9. Roadmap**  
+## **9. Roadmap**  
+Please see [TODO.md](TODO.md) for our detailed roadmap. This project is under active development, and we welcome community input on prioritizing features.
 
 ---
 

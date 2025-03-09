@@ -330,4 +330,4 @@ sudo systemctl restart redis-stack-server
 
 ## **11. Manage your Setup**
 
-For detailed commands and instructions on managing your services—including handling processes on both Debian and Windows—please refer to [MANAGE.md](MANAGE.md). This document covers system-specific commands, troubleshooting tips, and best practices for maintaining your RAG AI Assistant setup.
+For detailed commands and instructions on managing your services—including handling processes on both Debian and Windows—please refer to [MANAGE.md](docs/MANAGE.md). This document covers system-specific commands, troubleshooting tips, and best practices for maintaining your RAG AI Assistant setup.
