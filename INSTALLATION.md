@@ -149,20 +149,25 @@ sudo cmake --install build --config Release
 ### **Setup Python Environment and Download Model**
 ```bash
 # Clone model repository
-GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct
+GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct
 
 # Setup Python environment
-python3 -m venv ~/llama-cpp-venv
-source ~/llama-cpp-venv/activate
+python3 -m venv llama-cpp-venv
+source ./llama-cpp-venv/bin/activate
 python -m pip install --upgrade pip wheel setuptools
 
 # Install conversion requirements
 python -m pip install --upgrade -r llama.cpp/requirements/requirements-convert_hf_to_gguf.txt
 
 # Convert and quantize model
-python llama.cpp/convert_hf_to_gguf.py SmolLM2-135M-Instruct --outfile ./SmolLM2.gguf
+python llama.cpp/convert_hf_to_gguf.py SmolLM2-360M-Instruct --outfile ./SmolLM2.gguf
 llama-quantize SmolLM2.gguf SmolLM2.q8.gguf Q8_0 N
+
+deactivate
 ```
+>Note: You need to manually download the `model.safetensors` file from HuggingFace and place it in the `SmolLM2-360M-Instruct` directory.
+
+>Important: you would need to replace "N" with the number of cores you want to setup for inference.  
 
 ### **Create Llama service**
 
@@ -188,7 +193,6 @@ SyslogIdentifier=llama-server
 WantedBy=multi-user.target
 ```
 
->Note: You need to manually download the `model.safetensors` file from HuggingFace and place it in the `SmolLM2-135M-Instruct` directory.
 ---
 
 ### Instructions to Enable the Service
@@ -218,7 +222,7 @@ WantedBy=multi-user.target
 
 5. **Check Service Status:**  
    ```bash
-   sudo systemctl status llama-server
+   curl -X GET http://localhost:8080/health
    ```
 ---
 
@@ -243,7 +247,7 @@ Check if services run after reboot:
 ```bash
 neo4j status
 redis-cli ping
-sudo systemctl status llama-server
+curl -X GET http://localhost:8080/health
 ```
 
 ## **8. Secure the Server**

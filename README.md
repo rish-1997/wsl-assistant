@@ -1,11 +1,15 @@
 # WSL Assistant 🚀  
-*Imagine running a fully integrated AI and database stack right on your Windows machine—secure, resilient, and privacy-focused.*  
+*Imagine running a fully integrated AI and database stack right on your low-end Windows machine—secure, resilient, and privacy-focused.*  
 
 WSL Assistant leverages the power of WSL2 and Debian to offer an environment where local AI inference meets robust data management. Whether you're an AI enthusiast or a seasoned developer, this project eliminates environment hassles, giving you immediate access to tools like Redis for vector storage, Neo4j for knowledge graphs, and llama.cpp for on-device AI.  
 
 With WSL Assistant, you can set up an enterprise-grade AI ecosystem without the overhead of traditional containerized solutions.  
 
 ![WSL2](https://img.shields.io/badge/WSL2-Supported-blue)  ![Debian](https://img.shields.io/badge/Debian-Supported-blue)  ![License](https://img.shields.io/badge/License-MIT-green)  
+
+Also, look how small!
+![Memory](https://raw.githubusercontent.com/rajatasusual/wsl-assistant/refs/heads/master/assets/mem.png)
+The memory footprint is ~1GB so you can run not just SLM inference but an entire AI-powered RAG pipeline on your 10-year old device.
 
 ---
 
@@ -136,11 +140,11 @@ For troubleshooting, see logs in `/var/log/wsl-assistant/`.
 
 ## **8. Performance Benchmarks**  
 
-WSL Assistant is optimized for **low-latency inference**. Here’s a sample benchmark for **SmolLM2-135M** on a standard laptop:
+WSL Assistant is optimized for **low-latency inference**. Here’s a sample benchmark for **SmolLM2-360M-Instruct** on a standard laptop:
 
 | Model                | Tokens/sec | VRAM (MB) |
 |----------------------|-----------|-----------|
-| **SmolLM2-135M**    | ~35 t/s   | ~250MB    |
+| **SmolLM2-360M-Instruct**    | ~22 t/s   | ~900MB    |
 | **Mistral 7B Q4_K_S** | ~6 t/s   | ~4GB      |
 | **LLaMA 13B Q8_0**  | ~2 t/s    | ~10GB     |
 
@@ -163,7 +167,7 @@ WSL Assistant is optimized for **low-latency inference**. Here’s a sample benc
 
 ❓ **Q: "Out of memory" error when loading models**  
 ✅ **Fix**:  
-- Try a smaller GGUF model (`SmolLM2-135M.q8.gguf`)  
+- Try a smaller GGUF model (`SmolLM2-360M-Instruct.q8.gguf`)  
 - Increase **WSL2 memory**: Edit `.wslconfig` and set:  
   ```ini
   [wsl2]
