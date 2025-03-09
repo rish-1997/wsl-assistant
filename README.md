@@ -1,15 +1,19 @@
 # WSL Assistant 🚀  
-*Imagine running a fully integrated AI and database stack right on your low-end Windows machine—secure, resilient, and privacy-focused.*  
+*Run a fully integrated AI and database stack on your low-end, CPU-only Windows machine—secure, resilient, and privacy-focused.*  
 
-WSL Assistant leverages the power of WSL2 and Debian to offer an environment where local AI inference meets robust data management. Whether you're an AI enthusiast or a seasoned developer, this project eliminates environment hassles, giving you immediate access to tools like Redis for vector storage, Neo4j for knowledge graphs, and llama.cpp for on-device AI.  
+WSL Assistant brings **on-device AI** to **low-power systems** by leveraging WSL2 and Debian. Unlike traditional AI setups that require **power-hungry GPUs**, this project is built **for CPUs only**—allowing you to run **efficient local inference** and a **full RAG pipeline** on even modest hardware.  
 
-With WSL Assistant, you can set up an enterprise-grade AI ecosystem without the overhead of traditional containerized solutions.  
+With WSL Assistant, you can **self-host AI assistants, chatbots, and knowledge graphs** without relying on external cloud APIs. The lightweight stack includes:  
+✅ **llama.cpp** for blazing-fast **CPU inference**  
+✅ **Redis Stack** for vector database storage  
+✅ **Neo4j** for knowledge graphs  
+✅ **Optimized for low-end Windows laptops & edge devices**  
+
+With a memory footprint as low as **1GB**, WSL Assistant lets you run **local AI inference and an entire RAG pipeline on a 10-year-old device!**  
 
 ![WSL2](https://img.shields.io/badge/WSL2-Supported-blue)  ![Debian](https://img.shields.io/badge/Debian-Supported-blue)  ![License](https://img.shields.io/badge/License-MIT-green)  
 
-Also, look how small!
-![Memory](https://raw.githubusercontent.com/rajatasusual/wsl-assistant/refs/heads/master/assets/mem.png)
-The memory footprint is ~1GB so you can run not just SLM inference but an entire AI-powered RAG pipeline on your 10-year old device.
+![Memory](https://raw.githubusercontent.com/rajatasusual/wsl-assistant/refs/heads/master/assets/mem.png)  
 
 ---
 
@@ -24,7 +28,7 @@ The memory footprint is ~1GB so you can run not just SLM inference but an entire
     - [4.1 Security](#41-security)
     - [4.2 Resiliency](#42-resiliency)
     - [4.3 Privacy](#43-privacy)
-    - [4.4 Full AI-Powered RAG Pipeline](#44-full-ai-powered-rag-pipeline)
+    - [4.4 CPU-Optimized AI-Powered RAG Pipeline](#44-cpu-optimized-ai-powered-rag-pipeline)
 - [5. Prerequisites](#5-prerequisites)
 - [6. Installation](#6-installation)
 - [7. Start the Services](#7-start-the-services)
@@ -40,22 +44,23 @@ The memory footprint is ~1GB so you can run not just SLM inference but an entire
 ## **2. Overview**  
 
 ### **2.1 Why This Project Exists?**  
-Developers and AI enthusiasts often struggle with setting up a **reliable, private, and secure local AI assistant**. `WSL Assistant` solves this by providing:  
-- **A fully integrated environment** with databases, AI models, and a secure WSL2 setup.  
-- **A resilient local inference setup** with Redis for vector storage and Neo4j for knowledge graphs.  
-- **Automatic service restart, security hardening, and performance tuning** for WSL2.  
+Most AI frameworks are built for **high-end GPUs**, making them **unusable on older machines** or **low-power edge devices**. WSL Assistant solves this by providing:  
+- **A fully integrated CPU-based AI environment** for local inference.  
+- **A lightweight stack (only ~1GB RAM)** to run AI models without lag.  
+- **An optimized RAG pipeline** with Redis + Neo4j for AI-powered retrieval.  
+- **No cloud dependency**—your data stays **local and private**.  
 
 ### **2.2 Why WSL and Debian?**  
-- **WSL2**: Seamlessly runs Linux on Windows with near-native performance.  
-- **Debian**: A stable, secure, and lightweight Linux distribution.  
+- **WSL2**: Runs Linux on Windows with near-native performance.  
+- **Debian**: Stable, secure, and lightweight—ideal for low-resource machines.  
 - **No need for Docker**: Avoids container overhead while still maintaining isolation.  
 
 ### **2.3 What Are the Components and Their Purpose?**  
 | Component      | Purpose |
 |---------------|---------|
-| **Redis Stack**  | Fast vector database for storing AI embeddings |
+| **Redis Stack**  | Fast vector database for AI embeddings |
 | **Neo4j**       | Graph database for knowledge management |
-| **llama.cpp**   | Local AI inference engine |
+| **llama.cpp**   | Local AI inference engine (CPU-optimized) |
 | **Fail2Ban & UFW** | Security hardening against brute-force attacks |
 | **Systemd Auto-Restart** | Ensures services are resilient to crashes |
 
@@ -63,31 +68,31 @@ Developers and AI enthusiasts often struggle with setting up a **reliable, priva
 
 ## **3. Use Cases**  
 - **AI-powered local search**: Store and retrieve knowledge with Redis + Neo4j.  
-- **Self-hosted RAG**: Use `llama.cpp` with vector embeddings for **document Q&A**.  
-- **Knowledge graph-powered AI**: Connect ideas with Neo4j and generate insights.  
-- **Offline AI assistant**: Run everything locally for **full privacy**.  
+- **Self-hosted AI assistant**: Use `llama.cpp` for **CPU-only inference**.  
+- **Privacy-first chatbots**: Avoid OpenAI/Google APIs—run everything **offline**.  
+- **Edge AI applications**: Ideal for **low-end devices** with limited compute.  
 
 ---
 
 ## **4. Features**  
 
 ### **4.1 Security** 🔒  
-✅ Disables **root SSH login**  
-✅ Enables **firewall (ufw) and Fail2Ban** to prevent attacks  
+✅ **Disables root SSH login**  
+✅ **Enables firewall (ufw) and Fail2Ban** to prevent attacks  
 ✅ **Automatic security updates**  
 
 ### **4.2 Resiliency** 🔄  
 ✅ **Auto-restarts essential services** after crashes  
 ✅ **Persistent Redis storage** for AI embeddings  
-✅ WSL2 network and resource optimizations  
+✅ **WSL2 optimizations for memory efficiency**  
 
 ### **4.3 Privacy** 🛡️  
 ✅ No external cloud dependencies  
-✅ Local **RAG** setup without sending data to OpenAI / Google  
-✅ **Fully air-gapped** if needed  
+✅ Local **AI inference with llama.cpp**  
+✅ **Fully air-gapped if needed**  
 
-### **4.4 Full AI-Powered RAG Pipeline** 🤖  
-1️⃣ **User query →** Sent to `llama.cpp`  
+### **4.4 CPU-Optimized AI-Powered RAG Pipeline** 🤖  
+1️⃣ **User query →** Sent to `llama.cpp` (CPU-only)  
 2️⃣ **Query transformed →** Passed to Redis vector DB  
 3️⃣ **Relevant knowledge retrieved →** From Neo4j knowledge graph  
 4️⃣ **Final AI response →** AI generates response  
@@ -127,28 +132,35 @@ For **frequently seen issues**, see [FAQs.md](FAQs.md).
 ./start.sh
 ```
 
-This script starts Redis Stack, Neo4j, and required services in the correct order. It:
-- Verifies service dependencies
-- Initializes Redis with vector support
-- Starts Neo4j graph database
-- Configures network settings
-- Enables service auto-restart
-
 For troubleshooting, see logs in `/var/log/wsl-assistant/`.
 
 ---
 
 ## **8. Performance Benchmarks**  
 
-WSL Assistant is optimized for **low-latency inference**. Here’s a sample benchmark for **SmolLM2-360M-Instruct** on a standard laptop:
+WSL Assistant is optimized for **low-latency CPU-only inference**. Below is a benchmark of `llama 3B Q8_0` on a low-end WSL2 setup.  
 
-| Model                | Tokens/sec | VRAM (MB) |
-|----------------------|-----------|-----------|
-| **SmolLM2-360M-Instruct**    | ~22 t/s   | ~900MB    |
-| **Mistral 7B Q4_K_S** | ~6 t/s   | ~4GB      |
-| **LLaMA 13B Q8_0**  | ~2 t/s    | ~10GB     |
+### **Test System Specs:**  
+📌 **RAM:** 4GB  
+📌 **Storage:** 20GB  
+📌 **Processor:** AMD Z1 Extreme  
+📌 **# Cores:** 4  
+📌 **GPU:** ❌ (None—CPU-only inference)  
+📌 **OS:** Debian (WSL2)  
 
-**Tip:** Use `llama-bench` for your setup!
+### **Tokens Per Second (T/s) Benchmarks:**  
+
+| Model            | Size      | Params    | Backend | Threads | Test Type | Tokens/sec (± std) |
+|-----------------|----------:|----------:|---------|--------:|----------:|-------------------:|
+| **LLaMA 3B Q8_0** | 366.8MB  | 361.82M  | CPU     | 2       | pp512     | 253.07 ± 23.75    |
+| **LLaMA 3B Q8_0** | 366.8MB  | 361.82M  | CPU     | 2       | tg128     | 54.44 ± 4.87      |
+
+![Tokens per second](assets/tpt.png)
+
+### **Interpreting These Results**  
+✅ **Blazing fast inference on just a CPU!**  
+✅ **Low power consumption—runs smoothly on a 4GB RAM system!**  
+✅ **Ideal for low-end edge devices & offline AI assistants!**  
 
 ---
 
@@ -177,7 +189,8 @@ WSL Assistant is optimized for **low-latency inference**. Here’s a sample benc
 ---
 
 ## **11. Contributing**  
-Contributions are welcome! Please:  
+Contributions are welcome!  
+
 1. Fork the repository  
 2. Create a new branch (`feature-xyz`)  
 3. Submit a **pull request**  
@@ -191,7 +204,7 @@ This project is licensed under the **MIT License**.
 
 ## **13. Credits**  
 Shout-out to:  
-- **[llama.cpp](https://github.com/ggml-org/llama.cpp)** for local AI inference  
+- **[llama.cpp](https://github.com/ggml-org/llama.cpp)** for CPU-based AI inference  
 - **[Redis](https://redis.io/)** for vector storage  
 - **[Neo4j](https://neo4j.com/)** for knowledge graphs  
 - **The WSL Community** for making Linux on Windows seamless  
