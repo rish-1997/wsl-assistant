@@ -1,4 +1,6 @@
 # WSL Assistant 🚀  
+[![Distro Health](https://github.com/rajatasusual/wsl-assistant/actions/workflows/check.yml/badge.svg?branch=master)](https://github.com/rajatasusual/wsl-assistant/actions/workflows/check.yml) ![WSL2](https://img.shields.io/badge/WSL2-Supported-blue) ![Debian](https://img.shields.io/badge/Debian-Supported-blue) ![License](https://img.shields.io/badge/License-MIT-green)  
+
 *Run a fully integrated AI and database stack on your low-end, CPU-only Windows machine—secure, resilient, and privacy-focused.*  
 
 > **TL;DR:** Self-host AI on your low-end Windows PC using WSL2. Runs on CPU-only, needs just 1GB RAM. See [SUMMARY.md](docs/SUMMARY.md) for a quick overview.

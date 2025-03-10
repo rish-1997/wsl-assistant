@@ -1,5 +1,4 @@
-name: Test check.sh in Debian
-
+name: Distro Health
 on:
   push:
     branches:
@@ -18,30 +17,30 @@ jobs:
 
       - name: Set up Debian in Docker
         run: |
-          docker run --name debian-test -d -it debian:bookworm bash
-          docker exec debian-test apt update && docker exec debian-test apt install -y sudo curl
+          docker run --name deb-box -d -it debian:bookworm bash
+          docker exec deb-box apt update && docker exec deb-box apt install -y sudo curl
 
-      - name: Copy check.sh into Container
+      - name: Copy setup.sh into Container
         run: |
-          docker cp scripts/check.sh debian-test:/check.sh
-          docker exec debian-test chmod +x /check.sh
+          docker cp setup.sh deb-box:/setup.sh
+          docker exec deb-box chmod +x /setup.sh
 
-      - name: Run check.sh
+      - name: Run setup.sh
         run: |
-          docker exec debian-test bash -c "/check.sh"
+          docker exec deb-box bash -c "/setup.sh"
 
       - name: Check Redis Status
         run: |
-          docker exec debian-test redis-cli ping | grep -q "PONG"
+          docker exec deb-box redis-cli ping | grep -q "PONG"
 
       - name: Check Neo4j Status
         run: |
-          docker exec debian-test neo4j status | grep -q "is running"
+          docker exec deb-box neo4j status | grep -q "is running"
 
       - name: Check llama-server Health
         run: |
-          docker exec debian-test curl -s -X GET http://localhost:8080/health | grep -q '"status":"ok"'
+          docker exec deb-box curl -s -X GET http://localhost:8080/health | grep -q '"status":"ok"'
 
       - name: Cleanup
         if: always()
-        run: docker stop debian-test && docker rm debian-test
+        run: docker stop deb-box && docker rm deb-box

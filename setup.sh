@@ -1,13 +1,25 @@
 #!/bin/bash
 set -e
 
+# Detect if running in WSL
+VIRT=$(systemd-detect-virt 2>/dev/null || echo "none")
+
 # ============================================================
 # setup.sh - Automated setup for wsl-assistant on Debian in WSL2
 # ============================================================
 # NOTE: This script is intended to be run inside your Debian
 # instance in WSL2. Ensure systemd is enabled in your WSL2
-# configuration (see /etc/wsl.conf) before running.
+# configuration (see /etc/wsl.conf) before running. Otherwise 
+# the script only runs the services in the background, meaning
+# they will not be restarted automatically on reboot.
 # ============================================================
+
+if [[ "$VIRT" != "wsl" ]]; then
+    echo "Running in non WSL environment (non-systemd mode)."
+else 
+    echo "Running in WSL environment (systemd mode)."
+    echo "Please ensure systemd is enabled in your WSL2 configuration."
+fi
 
 echo "===================================="
 echo "Starting wsl-assistant setup..."
@@ -21,24 +33,28 @@ sudo apt update && sudo apt upgrade -y
 # 1. Install Essential Packages
 # ----------------------------------------
 echo "Installing essential packages..."
-sudo apt install -y curl wget ufw fail2ban unattended-upgrades openssh-server git cmake ninja-build python3-venv python3-pip nodejs npm
-
-echo "Node.js version: $(node --version)"
-echo "npm version: $(npm --version)"
+sudo apt install -y curl wget
 
 # ----------------------------------------
 # 2. Install Redis Stack Server
 # ----------------------------------------
 echo "Installing Redis Stack Server..."
-sudo apt-get install -y lsb-release curl gpg
+sudo apt-get install -y lsb-release gpg
 curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 sudo chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb jammy main" | sudo tee /etc/apt/sources.list.d/redis.list
 sudo apt update
 sudo apt install -y redis-stack-server
-sudo systemctl enable redis-stack-server
-sudo systemctl start redis-stack-server
+if [[ "$VIRT" != "wsl" ]]; then
+    echo "Starting Redis manually..."
+    nohup redis-server > redis.log 2>&1 &
+else
+    echo "Starting Redis with systemd..."
+    sudo systemctl enable redis-stack-server
+    sudo systemctl start redis-stack-server
+fi
 
+sleep 5
 if redis-cli ping | grep -q "PONG"; then
     echo "✅ Redis Stack Server is running."
 else
@@ -67,10 +83,16 @@ if grep -q "# server.default_listen_address=0.0.0.0" "$NEO4J_CONF"; then
     echo "Updating Neo4j network settings..."
     sudo sed -i 's|# server.default_listen_address=0.0.0.0|server.default_listen_address=0.0.0.0|' "$NEO4J_CONF"
 fi
+if [[ "$VIRT" != "wsl" ]]; then
+    echo "Starting Neo4j manually..."
+    nohup neo4j console > neo4j.log 2>&1 &
+else
+    echo "Starting Neo4j with systemd..."
+    sudo systemctl enable neo4j
+    sudo systemctl start neo4j
+fi
 
-sudo systemctl enable neo4j
-sudo systemctl start neo4j
-
+sleep 5
 if neo4j status | grep -q "is running"; then
     echo "✅ Neo4j is running."
 else
@@ -81,6 +103,7 @@ fi
 # 4. Install llama.cpp and AI Models
 # ----------------------------------------
 echo "Installing llama.cpp dependencies and building the project..."
+sudo apt install -y git cmake ninja-build python3-venv python3-pip
 cd $HOME
 if [ ! -d "llama.cpp" ]; then
     git clone https://github.com/ggml-org/llama.cpp.git
@@ -126,11 +149,14 @@ python $HOME/llama.cpp/convert_hf_to_gguf.py SmolLM2-360M-Instruct --outfile $HO
 llama-quantize $HOME/models/SmolLM2.gguf $HOME/models/SmolLM2.q8.gguf Q8_0 4
 deactivate
 
-# ----------------------------------------
-# 5. Create systemd service for llama-server
-# ----------------------------------------
-echo "Creating systemd service for llama-server..."
-sudo tee /etc/systemd/system/llama-server.service > /dev/null <<EOF
+if [[ "$VIRT" != "wsl" ]]; then
+    nohup llama-server -m $HOME/models/SmolLM2.q8.gguf > llama-server.log 2>&1 &
+else 
+    # ----------------------------------------
+    # 5. Create systemd service for llama-server
+    # ----------------------------------------
+    echo "Creating systemd service for llama-server..."
+    sudo tee /etc/systemd/system/llama-server.service > /dev/null <<EOF
 [Unit]
 Description=llama-server Service
 After=network.target
@@ -149,62 +175,64 @@ SyslogIdentifier=llama-server
 [Install]
 WantedBy=multi-user.target
 EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable llama-server
-sudo systemctl start llama-server
-
-if systemctl is-active --quiet llama-server; then
-    echo "✅ llama-server service is running."
-else
-    echo "❌ Error: llama-server service did not start."
+    sudo systemctl daemon-reload
+    sudo systemctl enable llama-server
+    sudo systemctl start llama-server
 fi
 
-# ----------------------------------------
-# 6. Configure Auto-Restart for Redis and Neo4j
-# ----------------------------------------
-echo "Configuring auto-restart for Redis and Neo4j..."
-sudo sed -i '/^\[Service\]/a Restart=on-abnormal\nRestartSec=5' /lib/systemd/system/neo4j.service
-sudo sed -i '/^\[Service\]/a Restart=on-abnormal\nRestartSec=5' /lib/systemd/system/redis-stack-server.service
-sudo systemctl daemon-reload
+sleep 5
+if curl -s -X GET http://localhost:8080/health | grep -q '"status":"ok"'; then
+    echo "✅ llama-server is healthy."
+else
+    echo "❌ Error: llama-server health check failed."
+    exit 1
+fi
 
-# ----------------------------------------
-# 7. Secure the Server
-# ----------------------------------------
-echo "Securing the server..."
-sudo sed -i 's/^#*PermitRootLogin .*/PermitRootLogin no/' /etc/ssh/sshd_config
-sudo systemctl restart ssh
+if [[ "$VIRT" == "wsl" ]]; then
+    # ----------------------------------------
+    # 6. Configure Auto-Restart for Redis and Neo4j
+    # ----------------------------------------
+    echo "Configuring auto-restart for Redis and Neo4j..."
+    sudo sed -i '/^\[Service\]/a Restart=on-abnormal\nRestartSec=5' /lib/systemd/system/neo4j.service
+    sudo sed -i '/^\[Service\]/a Restart=on-abnormal\nRestartSec=5' /lib/systemd/system/redis-stack-server.service
+    sudo systemctl daemon-reload
+    # ----------------------------------------
+    # 7. Secure the Server
+    # ----------------------------------------
+    echo "Securing the server..."
+    sudo apt purge -y unattended-upgrades
+    sudo apt install -y ufw fail2ban unattended-upgrades openssh-server
+    sudo sed -i 's/^#*PermitRootLogin .*/PermitRootLogin no/' /etc/ssh/sshd_config
+    sudo systemctl restart ssh
 
-echo "Configuring UFW..."
-sudo ufw allow ssh
-sudo ufw allow 6379/tcp    # Redis
-sudo ufw allow 7474/tcp    # Neo4j
-sudo ufw allow 8080/tcp    # llama.cpp (assumed port)
-sudo ufw --force enable
+    echo "Configuring UFW..."
+    sudo ufw allow ssh
+    sudo ufw allow 6379/tcp    # Redis
+    sudo ufw allow 7474/tcp    # Neo4j
+    sudo ufw allow 8080/tcp    # llama.cpp (assumed port)
+    sudo ufw --force enable
 
-echo "Enabling unattended-upgrades..."
-sudo apt purge -y unattended-upgrades
-sudo apt install -y unattended-upgrades
-sudo tee /etc/apt/apt.conf.d/50unattended-upgrades > /dev/null <<EOF
+    echo "Enabling unattended-upgrades..."
+    sudo tee /etc/apt/apt.conf.d/50unattended-upgrades > /dev/null <<EOF
 Unattended-Upgrade::Origins-Pattern {
-  "origin=Debian,codename=\${distro_codename},label=Debian";
-  "origin=Debian,codename=\${distro_codename},label=Debian-Security";
-  "origin=Debian,codename=\${distro_codename}-security,label=Debian-Security";
+"origin=Debian,codename=\${distro_codename},label=Debian";
+"origin=Debian,codename=\${distro_codename},label=Debian-Security";
+"origin=Debian,codename=\${distro_codename}-security,label=Debian-Security";
 };
 EOF
-sudo systemctl enable unattended-upgrades
+    sudo systemctl enable unattended-upgrades
 
-echo "Installing and configuring Fail2Ban..."
-sudo apt install -y fail2ban
-sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
-sudo systemctl restart fail2ban
+    echo "Configuring Fail2Ban..."
+    sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+    sudo systemctl restart fail2ban
 
-# ----------------------------------------
-# 8. Make Redis Persistent
-# ----------------------------------------
-echo "Configuring Redis persistence..."
-echo "save 900 1" | sudo tee -a /etc/redis-stack.conf
-sudo systemctl restart redis-stack-server
+    # ----------------------------------------
+    # 8. Make Redis Persistent
+    # ----------------------------------------
+    echo "Configuring Redis persistence..."
+    echo "save 900 1" | sudo tee -a /etc/redis-stack.conf
+    sudo systemctl restart redis-stack-server
+fi
 
 # ----------------------------------------
 # 9. Finalize Setup

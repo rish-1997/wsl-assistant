@@ -31,7 +31,7 @@ fi
 # --- llama-server ---
 echo "[3/3] Starting llama-server..."
 # Check if llama-server is already running
-if pgrep -x "llama-server" > /dev/null; then
+if curl -s -X GET http://localhost:8080/health | grep -q '"status":"ok"'; then
     echo "✅ llama-server is already running."
 else
     # Launch llama-server in the background. Adjust the model path if needed.
