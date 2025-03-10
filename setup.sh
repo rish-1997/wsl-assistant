@@ -98,11 +98,23 @@ cmake -S . -B build -G Ninja \
 cmake --build build --config Release -j $(nproc)
 sudo cmake --install build --config Release
 
+echo "Installing Git LFS for model download..."
+cd $HOME
+curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+sudo apt-get install git-lfs
+
+if [ ! -d "SmolLM2-360M-Instruct" ]; then
+    echo "Cloning SmolLM2-360M-Instruct model repository..."
+    git clone https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct
+    cd SmolLM2-360M-Instruct
+    git lfs install
+    git lfs pull
+else
+    echo "SmolLM2-360M-Instruct model repository already exists."
+fi
+
 echo "Setting up Python environment for model conversion..."
 cd $HOME
-if [ ! -d "SmolLM2-360M-Instruct" ]; then
-    GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct
-fi
 mkdir models
 python3 -m venv ~/llama-cpp-venv
 source ~/llama-cpp-venv/bin/activate

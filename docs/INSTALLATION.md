@@ -152,12 +152,24 @@ cmake --build build --config Release -j $(nproc)
 sudo cmake --install build --config Release
 ```
 
+### **Install Git LFS and Clone Model**
+```bash
+cd $HOME
+# Setup Git LFS
+curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+sudo apt-get install git-lfs
+
+# Clone and pull model files
+git clone https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct
+cd SmolLM2-360M-Instruct
+git lfs install
+git lfs pull
+cd $HOME
+```
+
 ### **Setup Python Environment and Download Model**
 ```bash
-# Clone model repository
-GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct
-mkdir models
-
+cd $HOME
 # Setup Python environment
 python3 -m venv llama-cpp-venv
 source ./llama-cpp-venv/bin/activate
